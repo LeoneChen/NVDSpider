@@ -1,0 +1,5 @@
+.idea
+*.jl
+*.cvs
+*.json
+__pycache__
