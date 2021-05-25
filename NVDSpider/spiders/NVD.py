@@ -18,7 +18,7 @@ class NvdSpider(scrapy.Spider):
     cve_detail_url_prefix = "https://nvd.nist.gov/vuln/detail/"
     google_scholar_url_prefix = "https://scholar.google.com/scholar?q="
     # key word set by user
-    nvd_search_key_word = "sgx"
+    nvd_search_key_word = "enclave"
 
     def start_requests(self):
         start_url = 'https://nvd.nist.gov/vuln/search/results' \
@@ -91,7 +91,13 @@ class NvdSpider(scrapy.Spider):
     def parse_rela_paper(self, response):
         paper = response.xpath("//div[@id='gs_res_ccl_mid']/div")
         if paper:
-            paper = paper[0].xpath("div[has-class('gs_ri')]//a/text()").get()
+            paper = paper[0].xpath("div[has-class('gs_ri')]/h3[has-class('gs_rt')]")
+            if paper.xpath("a"):
+                paper = paper.xpath("a/text()").get()
+            else:
+                paper = " ".join(paper.xpath("span/text()").getall())
+        else:
+            paper = "None"
         cve_detail = response.meta["cve_detail"]
         cve_detail["paper"] = paper
         return cve_detail
