@@ -2,7 +2,6 @@ import scrapy
 import functools
 import re
 
-
 from ..items import NvdspiderItem
 
 
@@ -11,12 +10,13 @@ from ..items import NvdspiderItem
 def patch_first(left, right):
     left_is_patch = int(bool(re.search("patch", left["type"], re.IGNORECASE)))
     right_is_patch = int(bool(re.search("patch", right["type"], re.IGNORECASE)))
-    return left_is_patch - right_is_patch
+    return right_is_patch - left_is_patch
 
 
 class NvdSpider(scrapy.Spider):
     name = 'NVD'
     cve_detail_url_prefix = "https://nvd.nist.gov/vuln/detail/"
+    # key word set by user
     nvd_search_key_word = "sgx"
 
     def start_requests(self):
@@ -52,22 +52,22 @@ class NvdSpider(scrapy.Spider):
         cve_detail['cvss2_vector'] = response.xpath(
             "//span[contains(@data-testid,'vuln-cvss2-panel-vector')]/text()").get().strip()
         cwes = []
-        cwe = {}
         for cwe_row in response.xpath("//tr[contains(@data-testid,'vuln-CWEs-row-')]"):
+            cwe = {}
             cwe.update({"id": cwe_row.xpath("td[contains(@data-testid,'vuln-CWEs-link-')]/a/text()").get()})
             cwe.update({"txt": cwe_row.xpath("td[contains(@data-testid,'vuln-CWEs-link-')]")[1].xpath("text()").get()})
-            cwes.append(cwe)
+            cwes.append(cwe["id"] + " " + cwe["txt"])
         cve_detail['cwe'] = cwes
 
         references = []
-        reference = {}
         for reference_row in response.xpath("//tr[contains(@data-testid,'vuln-hyperlinks-row-')]"):
+            reference = {}
             reference.update(
                 {"link": reference_row.xpath("td[contains(@data-testid,'vuln-hyperlinks-link-')]/a/text()").get()})
-            reference.update({"type": ",".join(reference_row.xpath(
+            reference.update({"type": ", ".join(reference_row.xpath(
                 "td[contains(@data-testid,'vuln-hyperlinks-resType-')]//span[has-class('badge')]/text()").getall())})
             references.append(reference)
-            references.sort(key=functools.cmp_to_key(patch_first))
+        references.sort(key=functools.cmp_to_key(patch_first))
         cve_detail['reference'] = references
 
         yield cve_detail

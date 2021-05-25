@@ -86,4 +86,4 @@ ROBOTSTXT_OBEY = False
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 FEED_FORMAT = "csv"
-FEED_URI = 'nvd.csv'
+FEED_URI = 'sgx.csv'
