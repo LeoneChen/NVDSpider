@@ -54,7 +54,13 @@ class NvdSpider(scrapy.Spider):
         cwes = []
         for cwe_row in response.xpath("//tr[contains(@data-testid,'vuln-CWEs-row-')]"):
             cwe = {}
-            cwe.update({"id": cwe_row.xpath("td[contains(@data-testid,'vuln-CWEs-link-')]/a/text()").get()})
+            cwe_id = cwe_row.xpath("td[contains(@data-testid,'vuln-CWEs-link-')]")[0]
+            cwe_id_a = cwe_id.xpath("a/text()")
+            if not cwe_id.xpath("a/text()"):
+                cwe_id = cwe_id.xpath("span/text()").get()
+            else:
+                cwe_id = cwe_id_a.get()
+            cwe.update({"id": cwe_id})
             cwe.update({"txt": cwe_row.xpath("td[contains(@data-testid,'vuln-CWEs-link-')]")[1].xpath("text()").get()})
             cwes.append(cwe["id"] + " " + cwe["txt"])
         cve_detail['cwe'] = cwes
