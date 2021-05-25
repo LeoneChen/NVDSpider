@@ -16,6 +16,7 @@ def patch_first(left, right):
 class NvdSpider(scrapy.Spider):
     name = 'NVD'
     cve_detail_url_prefix = "https://nvd.nist.gov/vuln/detail/"
+    google_scholar_url_prefix = "https://scholar.google.com/scholar?q="
     # key word set by user
     nvd_search_key_word = "sgx"
 
@@ -41,16 +42,17 @@ class NvdSpider(scrapy.Spider):
     def parse_cve_detail(self, response):
         cve_detail = NvdspiderItem()
         cve_detail['cve_id'] = response.xpath("//span[@data-testid='page-header-vuln-id']/text()").get().strip()
-        cve_detail['current_description'] = response.xpath("//p[@data-testid='vuln-description']/text()").get().strip()
-        cve_detail['cvss3_score'] = response.xpath(
-            "//span[has-class('severityDetail')]")[0].xpath("a/text()").get().strip()
+        cve_detail['current_description'] = response.xpath(
+            "//p[@data-testid='vuln-description']/text()").get().strip()
+        # cve_detail['cvss3_score'] = response.xpath(
+        #     "//span[has-class('severityDetail')]")[0].xpath("a/text()").get().strip()
         cve_detail['cvss2_score'] = response.xpath(
             "//span[has-class('severityDetail')]")[1].xpath("a/text()").get().strip()
-        cvss3_vector = response.xpath(
-            "//span[contains(@data-testid,'vuln-cvss3-nist-vector')]/text()").get().strip()
-        cve_detail['cvss3_vector'] = " ".join(re.sub("[\t\n\r]", ' ', cvss3_vector).split())
-        cve_detail['cvss2_vector'] = response.xpath(
-            "//span[contains(@data-testid,'vuln-cvss2-panel-vector')]/text()").get().strip()
+        # cvss3_vector = response.xpath(
+        #     "//span[contains(@data-testid,'vuln-cvss3-nist-vector')]/text()").get().strip()
+        # cve_detail['cvss3_vector'] = " ".join(re.sub("[\t\n\r]", ' ', cvss3_vector).split())
+        # cve_detail['cvss2_vector'] = response.xpath(
+        #     "//span[contains(@data-testid,'vuln-cvss2-panel-vector')]/text()").get().strip()
         cwes = []
         for cwe_row in response.xpath("//tr[contains(@data-testid,'vuln-CWEs-row-')]"):
             cwe = {}
@@ -74,6 +76,22 @@ class NvdSpider(scrapy.Spider):
                 "td[contains(@data-testid,'vuln-hyperlinks-resType-')]//span[has-class('badge')]/text()").getall())})
             references.append(reference)
         references.sort(key=functools.cmp_to_key(patch_first))
+        for i in range(len(references)):
+            tmp = references[i]["link"] + " "
+            if references[i]["type"] != "":
+                tmp += "(" + references[i]["type"] + ")"
+            references[i] = tmp + "; "
+
+        references = "".join(references)
         cve_detail['reference'] = references
 
-        yield cve_detail
+        yield scrapy.Request(self.google_scholar_url_prefix + cve_detail['cve_id'].strip(),
+                             callback=self.parse_rela_paper, dont_filter=True, meta={'cve_detail': cve_detail})
+
+    def parse_rela_paper(self, response):
+        paper = response.xpath("//div[@id='gs_res_ccl_mid']/div")
+        if paper:
+            paper = paper[0].xpath("div[has-class('gs_ri')]//a/text()").get()
+        cve_detail = response.meta["cve_detail"]
+        cve_detail["paper"] = paper
+        return cve_detail
