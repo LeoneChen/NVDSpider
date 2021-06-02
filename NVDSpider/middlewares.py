@@ -71,7 +71,8 @@ class NvdspiderDownloaderMiddleware:
     def process_request(self, request, spider):
         # Called for each request that goes through the downloader
         # middleware.
-
+        proxy = "http://127.0.0.1:8889"
+        request.meta["proxy"] = proxy
         # Must either:
         # - return None: continue processing this request
         # - or return a Response object

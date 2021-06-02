@@ -18,7 +18,7 @@ class NvdSpider(scrapy.Spider):
     cve_detail_url_prefix = "https://nvd.nist.gov/vuln/detail/"
     google_scholar_url_prefix = "https://scholar.google.com/scholar?q="
     # key word set by user
-    nvd_search_key_word = "enclave"
+    nvd_search_key_word = "sgx"
 
     def start_requests(self):
         start_url = 'https://nvd.nist.gov/vuln/search/results' \
