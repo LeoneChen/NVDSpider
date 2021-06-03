@@ -2,10 +2,10 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-
+import time
+import random
 from scrapy import signals
 from .spiders.NVD import NvdSpider
-import random
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
 
 # useful for handling different item types with a single interface
@@ -63,6 +63,7 @@ class NvdspiderDownloaderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
+    # access_google_cnt = 0
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -76,6 +77,9 @@ class NvdspiderDownloaderMiddleware:
         # middleware.
 
         if NvdSpider.google_scholar_url_prefix in request.url:
+            # self.access_google_cnt += 1
+            # if self.access_google_cnt % 10 == 0:
+            time.sleep(2)
             proxy = "http://127.0.0.1:8889"
             request.meta["proxy"] = proxy
 
@@ -89,6 +93,10 @@ class NvdspiderDownloaderMiddleware:
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
+
+        if response.status != 200:
+            time.sleep(5)
+            return request
 
         # Must either;
         # - return a Response object

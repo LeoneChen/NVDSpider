@@ -3,3 +3,4 @@
 *.csv
 *.json
 __pycache__
+temp

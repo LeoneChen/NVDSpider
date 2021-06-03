@@ -13,7 +13,7 @@ SPIDER_MODULES = ['NVDSpider.spiders']
 NEWSPIDER_MODULE = 'NVDSpider.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = 'NVDSpider (+http://www.yourdomain.com)'
+# USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.37'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -24,13 +24,13 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 3
+# DOWNLOAD_DELAY = 0.5
 # The download delay setting will honor only one of:
-# CONCURRENT_REQUESTS_PER_DOMAIN = 16
+# CONCURRENT_REQUESTS_PER_DOMAIN = 4
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+# COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -51,8 +51,8 @@ COOKIES_ENABLED = False
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'NVDSpider.middlewares.NvdspiderDownloaderMiddleware': 543,
-    'NVDSpider.middlewares.NvdspiderUserAgentMiddleware': 1,
-    'scrapy.downloadermiddleware.useragent.UserAgentMiddleware': None,
+    # 'NVDSpider.middlewares.NvdspiderUserAgentMiddleware': 1,
+    # 'scrapy.downloadermiddleware.useragent.UserAgentMiddleware': None,
 }
 
 # Enable or disable extensions
@@ -69,14 +69,14 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
-AUTOTHROTTLE_ENABLED = True
+# AUTOTHROTTLE_ENABLED = True
 # The initial download delay
-AUTOTHROTTLE_START_DELAY = 5
+# AUTOTHROTTLE_START_DELAY = 0.5
 # The maximum download delay to be set in case of high latencies
-AUTOTHROTTLE_MAX_DELAY = 60
+# AUTOTHROTTLE_MAX_DELAY = 60
 # The average number of requests Scrapy should be sending in parallel to
 # each remote server
-AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
+# AUTOTHROTTLE_TARGET_CONCURRENCY = 4.0
 # Enable showing throttling stats for every response received:
 # AUTOTHROTTLE_DEBUG = False
 
@@ -89,3 +89,12 @@ AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 FEED_FORMAT = "csv"
 FEED_URI = 'output.csv'
+
+RETRY_ENABLED = True
+# RETRY_TIMES = 2
+# RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408, 429]
+
+JOBDIR = "temp/001"
+
+DUPEFILTER_DEBUG = True
+DUPEFILTER_CLASS = 'scrapy.dupefilters.BaseDupeFilter'
